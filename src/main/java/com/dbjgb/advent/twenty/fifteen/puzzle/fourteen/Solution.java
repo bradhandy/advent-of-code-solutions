@@ -35,15 +35,14 @@ public class Solution {
       for (Reindeer raceEntry : reindeer) {
         int distance = raceEntry.distanceInSeconds(i);
         List<Reindeer> reindeerAtDistance =
-            Optional.ofNullable(distanceByReindeer.get(distance))
-                .orElseGet(ArrayList::new);
+            distanceByReindeer.getOrDefault(distance, new ArrayList<>());
         reindeerAtDistance.add(raceEntry);
         distanceByReindeer.put(distance, reindeerAtDistance);
       }
 
       List<Reindeer> furthestReindeer = distanceByReindeer.get(distanceByReindeer.lastKey());
       for (Reindeer pointEarner : furthestReindeer) {
-        Integer totalPoints = Optional.ofNullable(points.get(pointEarner.getName())).orElse(0);
+        Integer totalPoints = points.getOrDefault(pointEarner.getName(), 0);
         points.put(pointEarner.getName(), totalPoints + 1);
       }
     }
