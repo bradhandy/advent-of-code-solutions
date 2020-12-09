@@ -2,7 +2,7 @@ package com.dbjgb.advent.twenty.sixteen.puzzle.one;
 
 import com.dbjgb.advent.Utility;
 
-import java.awt.*;
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.io.BufferedReader;
 import java.util.ArrayList;
