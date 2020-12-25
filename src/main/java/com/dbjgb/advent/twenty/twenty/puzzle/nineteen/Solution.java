@@ -2,10 +2,19 @@ package com.dbjgb.advent.twenty.twenty.puzzle.nineteen;
 
 import com.dbjgb.advent.Utility;
 import com.google.common.base.Strings;
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +28,36 @@ public class Solution {
       Pattern.compile("(\\d+): (\\d+|\\\"(\\w+)\\\")(?: (\\d+))?(?: \\| (?:(\\d+)(?: (\\d+))?))?");
 
   public static void main(String... args) throws Exception {
+    printTotalMatchingFirstRuleSet();
+    printTotalMatchingSecondRuleSet();
+  }
+
+  private static void printTotalMatchingSecondRuleSet() throws IOException {
+    try (BufferedReader inputReader =
+        Utility.openInputFile("twenty/puzzle/nineteen/input-without-lexer-rules.txt")) {
+      NineteenVisitor nineteenVisitor = new NineteenVisitor();
+      int numberOfErrors = 0;
+      String line;
+      while ((line = inputReader.readLine()) != null) {
+        NineteenLexer nineteenLexer = new NineteenLexer(CharStreams.fromString(line));
+        CommonTokenStream commonTokenStream = new CommonTokenStream(nineteenLexer);
+        NineteenParser nineteenParser = new NineteenParser(commonTokenStream);
+
+        NineteenErrorListener nineteenErrorListener = new NineteenErrorListener();
+        nineteenParser.addErrorListener(nineteenErrorListener);
+        nineteenParser.valid_command().accept(nineteenVisitor);
+        if (nineteenErrorListener.getNumberOfErrors() > 0) {
+          numberOfErrors += 1;
+        }
+      }
+
+      System.out.printf(
+          "Total Valid:  %d\n",
+          nineteenVisitor.getTotalValid() - numberOfErrors);
+    }
+  }
+
+  private static void printTotalMatchingFirstRuleSet() throws IOException {
     try (BufferedReader inputReader = Utility.openInputFile("twenty/puzzle/nineteen/input.txt")) {
       Map<String, Rule> rulesMap = parseRules(inputReader);
       Pattern valuePattern = Pattern.compile(rulesMap.get("0").getRulePattern());
@@ -76,7 +115,9 @@ public class Solution {
       List<Rule> rightHandRules = new ArrayList<>(List.of(ruleReference));
       String fourthArgument = ruleMatcher.group(6);
       if (!Strings.isNullOrEmpty(fourthArgument)) {
-        ruleReference = rulesReferences.computeIfAbsent(fourthArgument, ruleReferenceId -> new RuleReference(ruleReferenceId, rulesMap));
+        ruleReference =
+            rulesReferences.computeIfAbsent(
+                fourthArgument, ruleReferenceId -> new RuleReference(ruleReferenceId, rulesMap));
         rightHandRules.add(ruleReference);
       }
       CompositeRule rightHandRule = new CompositeRule(ruleId, rightHandRules);
@@ -186,5 +227,68 @@ class OptionRule extends Rule {
     }
 
     return value;
+  }
+}
+
+class NineteenVisitor extends NineteenParserBaseVisitor<Void> {
+
+  private int totalValid = 0;
+
+  @Override
+  public Void visitValid_command(NineteenParser.Valid_commandContext ctx) {
+    totalValid += 1;
+    return null;
+  }
+
+  public int getTotalValid() {
+    return totalValid;
+  }
+}
+
+class NineteenErrorListener implements ANTLRErrorListener {
+
+  private int numberOfErrors = 0;
+
+  @Override
+  public void syntaxError(
+      Recognizer<?, ?> recognizer,
+      Object offendingSymbol,
+      int line,
+      int charPositionInLine,
+      String msg,
+      RecognitionException e) {
+    numberOfErrors += 1;
+  }
+
+  @Override
+  public void reportAmbiguity(
+      Parser recognizer,
+      DFA dfa,
+      int startIndex,
+      int stopIndex,
+      boolean exact,
+      BitSet ambigAlts,
+      ATNConfigSet configs) {}
+
+  @Override
+  public void reportAttemptingFullContext(
+      Parser recognizer,
+      DFA dfa,
+      int startIndex,
+      int stopIndex,
+      BitSet conflictingAlts,
+      ATNConfigSet configs) {}
+
+  @Override
+  public void reportContextSensitivity(
+      Parser recognizer,
+      DFA dfa,
+      int startIndex,
+      int stopIndex,
+      int prediction,
+      ATNConfigSet configs) {}
+
+  public int getNumberOfErrors() {
+    return numberOfErrors;
   }
 }
