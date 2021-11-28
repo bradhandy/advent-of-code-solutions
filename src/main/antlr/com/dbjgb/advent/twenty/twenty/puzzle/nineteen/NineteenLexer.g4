@@ -5,7 +5,7 @@ options {
 }
 
 @header {
-package com.dbjgb.advent.twenty.twenty.puzzle.nineteen;
+package com.dbjgb.advent.twenty.puzzle.nineteen;
 }
 
 A58: A127 A99 | A105 A36;
