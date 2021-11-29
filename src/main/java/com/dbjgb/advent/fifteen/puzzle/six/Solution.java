@@ -24,10 +24,10 @@ public class Solution {
   }
 
   private static void printTotalBrightness() throws IOException {
-    try (BufferedReader inputReadee = Utility.openInputFile("fifteen/puzzle/six/input.txt")) {
+    try (BufferedReader inputReader = Utility.openInputFile("fifteen/puzzle/six/input.txt")) {
       Map<Point, Integer> lightBrightness = new HashMap<>();
       String line;
-      while ((line = inputReadee.readLine()) != null) {
+      while ((line = inputReader.readLine()) != null) {
         Matcher instructionMatcher = INSTRUCTION_PATTERN.matcher(line);
         if (instructionMatcher.matches()) {
           String action = instructionMatcher.group(1);
