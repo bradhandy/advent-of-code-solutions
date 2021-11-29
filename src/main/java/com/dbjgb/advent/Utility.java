@@ -11,7 +11,7 @@ public final class Utility {
   }
 
   public static InputStream openInputStream(String path) {
-    String fullPath = "com/dbjgb/advent/twenty/" + path;
+    String fullPath = "com/dbjgb/advent/" + path;
     InputStream input =
         Thread.currentThread().getContextClassLoader().getResourceAsStream(fullPath);
     return input;
