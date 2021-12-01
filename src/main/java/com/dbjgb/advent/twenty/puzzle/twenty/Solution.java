@@ -62,7 +62,7 @@ public class Solution {
 
   private static final Pattern TILE_ID_PATTERN = Pattern.compile("Tile (\\d+):");
 
-  public static final void main(String... args) throws Exception {
+  public static void main(String... args) throws Exception {
     List<Tile> tiles = parseTiles();
     for (int i = 0; i < tiles.size(); i++) {
       Tile currentTile = tiles.get(i);

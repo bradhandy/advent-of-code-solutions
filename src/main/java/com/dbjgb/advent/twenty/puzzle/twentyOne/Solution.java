@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twenty.puzzle.twenty.one;
+package com.dbjgb.advent.twenty.puzzle.twentyOne;
 
 import com.dbjgb.advent.Utility;
 import com.google.common.base.Joiner;
@@ -21,7 +21,7 @@ public class Solution {
   private static final Pattern LIST_PATTERN = Pattern.compile(",? ");
 
   public static void main(String... args) throws Exception {
-    try (BufferedReader inputReader = Utility.openInputFile("twenty/puzzle/twenty/one/input.txt")) {
+    try (BufferedReader inputReader = Utility.openInputFile("twenty/puzzle/twentyOne/input.txt")) {
       Map<String, Set<String>> allergenToPossibiliesMap = new TreeMap<>();
       List<Set<String>> ingredientsLists = new ArrayList<>();
       String line;
@@ -108,7 +108,7 @@ public class Solution {
                 }
                 canonicalList.append(Iterables.getOnlyElement(possibilities));
               });
-      System.out.printf("Canonical List: %s\n", canonicalList.toString());
+      System.out.printf("Canonical List: %s\n", canonicalList);
     }
   }
 }
