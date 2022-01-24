@@ -1,0 +1,67 @@
+{
+  "spells": [
+    {
+      "name": "Magic Missile",
+      "cost": 53,
+      "effects": [
+        {
+          "immediate": true,
+          "target": "boss",
+          "damage": 4
+        }
+      ]
+    },
+    {
+      "name": "Drain",
+      "cost": 73,
+      "effects": [
+        {
+          "immediate": true,
+          "target": "boss",
+          "damage": 2
+        },
+        {
+          "immediate": true,
+          "target": "self",
+          "heal": 2
+        }
+      ]
+    },
+    {
+      "name": "Shield",
+      "cost": 113,
+      "effects": [
+        {
+          "immediate": false,
+          "turns": 6,
+          "target": "self",
+          "defense": 7
+        }
+      ]
+    },
+    {
+      "name": "Poison",
+      "cost": 173,
+      "effects": [
+        {
+          "immediate": false,
+          "turns": 6,
+          "target": "boss",
+          "damage": 3
+        }
+      ]
+    },
+    {
+      "name": "Recharge",
+      "cost": 229,
+      "effects": [
+        {
+          "immediate": false,
+          "turns": 5,
+          "target": "self",
+          "mana": 101
+        }
+      ]
+    }
+  ]
+}
