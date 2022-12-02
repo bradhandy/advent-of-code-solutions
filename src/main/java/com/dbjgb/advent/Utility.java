@@ -1,8 +1,14 @@
 package com.dbjgb.advent;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 public final class Utility {
 
@@ -15,6 +21,13 @@ public final class Utility {
     InputStream input =
         Thread.currentThread().getContextClassLoader().getResourceAsStream(fullPath);
     return input;
+  }
+
+  public static List<String> readAllLines(String path) throws URISyntaxException, IOException {
+    String fullPath = "com/dbjgb/advent/" + path;
+    URI fileUri = Thread.currentThread().getContextClassLoader().getResource(fullPath).toURI();
+
+    return Files.readAllLines(Path.of(fileUri));
   }
 
   private Utility() {}
