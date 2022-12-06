@@ -30,5 +30,12 @@ public final class Utility {
     return Files.readAllLines(Path.of(fileUri));
   }
 
+  public static String readEntireFile(String path) throws URISyntaxException, IOException {
+    String fullPath = "com/dbjgb/advent/" + path;
+    URI fileUri = Thread.currentThread().getContextClassLoader().getResource(fullPath).toURI();
+
+    return Files.readString(Path.of(fileUri));
+  }
+
   private Utility() {}
 }
