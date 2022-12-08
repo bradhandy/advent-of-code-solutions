@@ -2,90 +2,60 @@ package com.dbjgb.advent.twenty.puzzle.twenty;
 
 import com.dbjgb.advent.Utility;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.dbjgb.advent.twenty.puzzle.twenty.Side.BOTTOM;
-import static com.dbjgb.advent.twenty.puzzle.twenty.Side.LEFT;
-import static com.dbjgb.advent.twenty.puzzle.twenty.Side.RIGHT;
-import static com.dbjgb.advent.twenty.puzzle.twenty.Side.TOP;
-
 public class Solution {
 
   private static final Pattern TILE_ID_PATTERN = Pattern.compile("Tile (\\d+):");
+  private static final List<Cell> SEA_MONSTER_CELLS =
+      List.of(
+          new Cell(0, 18),
+          new Cell(1, 0),
+          new Cell(1, 5),
+          new Cell(1, 6),
+          new Cell(1, 11),
+          new Cell(1, 12),
+          new Cell(1, 17),
+          new Cell(1, 18),
+          new Cell(1, 19),
+          new Cell(2, 1),
+          new Cell(2, 4),
+          new Cell(2, 7),
+          new Cell(2, 10),
+          new Cell(2, 13),
+          new Cell(2, 16));
 
   public static void main(String... args) throws Exception {
-    List<Tile> tiles = parseTiles();
-    for (int i = 0; i < tiles.size(); i++) {
-      Tile currentTile = tiles.get(i);
-
-      for (int j = 0; j < tiles.size(); j++) {
-        if (i == j) {
-          continue;
-        }
-
-        Tile possibleMatch = tiles.get(j);
-        for (Side side : Side.getAllSides()) {
-          for (Side matchSide : Side.getAllSides()) {
-            if (currentTile.matchesFromSideToTileSide(side, possibleMatch, matchSide)) {
-              currentTile.addCandidate(side, possibleMatch);
-              possibleMatch.addCandidate(matchSide, currentTile);
-            }
-          }
-        }
-      }
-    }
-
-    Tile startingTile = Iterables.getFirst(tiles, null);
-    orientDirectionStartingWith(TOP, startingTile);
-    orientDirectionStartingWith(RIGHT, startingTile);
-    orientDirectionStartingWith(LEFT, startingTile);
-    orientDirectionStartingWith(BOTTOM, startingTile);
-
-    Tile currentTile = startingTile;
-    while ((currentTile = currentTile.getTileOnSide(TOP)) != null) {
-      orientDirectionStartingWith(RIGHT, currentTile);
-      orientDirectionStartingWith(LEFT, currentTile);
-    }
-
-    currentTile = startingTile;
-    while ((currentTile = currentTile.getTileOnSide(BOTTOM)) != null) {
-      orientDirectionStartingWith(RIGHT, currentTile);
-      orientDirectionStartingWith(LEFT, currentTile);
-    }
+    Grid grid = new Grid(parseTiles());
 
     long idProduct = 1;
-    for (Tile tile : tiles) {
-      if (tile.hasTwoEmptySides()) {
-        System.out.printf("corner: %d\n", tile.getId());
-        for (Side side : Side.getAllSides()) {
-          if (tile.getTileOnSide(side) == null) {
-            System.out.printf("No tile on the %s.\n", side);
-          } else {
-            System.out.printf("%s side tile is %d.\n", side, tile.getTileOnSide(side).getId());
-          }
-        }
+    for (Tile tile : grid.getCorners()) {
+      idProduct *= tile.getId();
+    }
 
-        idProduct *= tile.getId();
+    System.out.printf("ID Product:  %d\n", idProduct);
+
+    // grid.printGrid();
+
+    char[][] concatenatedGrid = grid.concatenate(false);
+    int seaMonstersFound = findSeaMonsters(concatenatedGrid);
+    int seaMonsterCellsTaken = seaMonstersFound * SEA_MONSTER_CELLS.size();
+    int waves = 0;
+    for (int row = 0; row < concatenatedGrid.length; row++) {
+      for (int column = 0; column < concatenatedGrid[row].length; column++) {
+        if (concatenatedGrid[row][column] == '#') {
+          waves += 1;
+        }
       }
     }
-    System.out.printf("ID Product:  %d\n", idProduct);
-  }
 
-  private static void orientDirectionStartingWith(Side direction, Tile startingTile) {
-    Tile tile = startingTile;
-    while (tile.getTileOnSide(direction) != null) {
-      Tile tileToOrient = tile.getTileOnSide(direction);
-      tileToOrient.orientToTileSide(tile, direction);
-      tile = tileToOrient;
-    }
+    System.out.printf("Sea roughness is %d.\n", waves - seaMonsterCellsTaken);
   }
 
   private static List<Tile> parseTiles() throws IOException {
@@ -120,5 +90,44 @@ public class Solution {
 
     return new Tile(tileId, data);
   }
-}
 
+  private static int findSeaMonsters(char[][] picture) {
+    char[][] photo = picture;
+    int lengthFurthestRight =
+        photo[0].length
+            - SEA_MONSTER_CELLS.stream().mapToInt(Cell::getColumn).reduce(0, Math::max);
+    int lengthFurthestDown =
+        photo.length - SEA_MONSTER_CELLS.stream().mapToInt(Cell::getRow).reduce(0, Math::max);
+
+    int seaMonstersFound = 0;
+    int rotations = 0;
+    int flips = 0;
+    do {
+      for (int row = 0; row < lengthFurthestDown; row++) {
+        for (int column = 0; column < lengthFurthestRight; column++) {
+          boolean found = true;
+          for (Cell cell : SEA_MONSTER_CELLS) {
+            Cell seaMonsterBodyCell = new Cell(cell.getRow() + row, cell.getColumn() + column);
+            found &= photo[seaMonsterBodyCell.getRow()][seaMonsterBodyCell.getColumn()] == '#';
+          }
+
+          if (found) {
+            seaMonstersFound += 1;
+          }
+        }
+      }
+
+      if (rotations < 4) {
+        photo = Rotation.LEFT.applyTo(photo);
+        rotations += 1;
+        if (flips < 1 && rotations == 4) {
+          photo = Flip.VERTICAL.applyTo(photo);
+          rotations = 0;
+          flips += 1;
+        }
+      }
+    } while (seaMonstersFound == 0 || (flips < 1 && rotations < 4));
+
+    return seaMonstersFound;
+  }
+}

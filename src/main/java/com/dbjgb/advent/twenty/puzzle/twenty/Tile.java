@@ -2,9 +2,7 @@ package com.dbjgb.advent.twenty.puzzle.twenty;
 
 import com.google.common.collect.Maps;
 
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -46,6 +44,7 @@ class Tile {
   }
 
   public void addCandidate(Side side, Tile candidate) {
+    assert matchesBySide.get(side) == null : "Multiple matches found.";
     matchesBySide.put(side, candidate);
   }
 
@@ -67,42 +66,26 @@ class Tile {
     return selfSideValue.equals(matchingSideValue) || selfSideValue.equals(reverseMatchingSideValue);
   }
 
-  public void orientToTileSide(Tile tile, Side side) {
-    Map<Tile, Side> sidesByTile = new HashMap<>(Maps.uniqueIndex(matchesBySide.keySet(), matchesBySide::get));
-    Side selfSide = sidesByTile.get(tile);
+  public void orientSideToTileSide(Side selfSide, Tile tile, Side side) {
     String matchingSideValue = side.sideValue(tile.getData());
     StringBuilder selfSideValue = new StringBuilder(selfSide.sideValue(getData()));
-    boolean flip = matchingSideValue.equals(selfSideValue.toString());
-    if (!flip) {
-      if (!matchingSideValue.equals(selfSideValue.reverse().toString())) {
-        throw new IllegalStateException(String.format("%d side %s does not match %d side %s.\n", tile.getId(), side, getId(), selfSide));
-      }
+    if (!matchingSideValue.equals(selfSideValue.toString()) && !matchingSideValue.equals(selfSideValue.reverse().toString())) {
+      throw new IllegalStateException(String.format("%d side %s does not match %d side %s.\n", tile.getId(), side, getId(), selfSide));
     }
-
-    matchesBySide.clear();
-    sidesByTile.remove(tile);
 
     Side oppositeSide = side.oppositeSide();
     if (oppositeSide != selfSide) {
       while (oppositeSide != selfSide) {
         this.data = Rotation.LEFT.applyTo(data);
         selfSide = selfSide.translate(Rotation.LEFT);
-        for (Map.Entry<Tile, Side> entry : sidesByTile.entrySet()) {
-          entry.setValue(entry.getValue().translate(Rotation.LEFT));
-        }
-      }
-      if (flip) {
-        System.out.printf("Flipping to %s.\n", side.flipDirection());
-        this.data = side.flipDirection().applyTo(data);
-        for (Map.Entry<Tile, Side> entry : sidesByTile.entrySet()) {
-          entry.setValue(entry.getValue().translate(side.flipDirection()));
-        }
       }
     }
-    matchesBySide.put(oppositeSide, tile);
-    matchesBySide.putAll(Maps.uniqueIndex(sidesByTile.keySet(), sidesByTile::get));
+    selfSideValue = new StringBuilder(selfSide.sideValue(getData()));
+    if (matchingSideValue.equals(selfSideValue.toString())) {
+      this.data = selfSide.flipDirection().applyTo(this.data);
+    }
 
-    System.out.printf("%d side %s matches %d side %s.\n", tile.getId(), side, getId(), selfSide);
+    matchesBySide.put(oppositeSide, tile);
   }
 
   @Override
