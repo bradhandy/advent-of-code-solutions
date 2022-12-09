@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle._09;
+package com.dbjgb.advent._2022.puzzle._09;
 
 import com.dbjgb.advent.Utility;
 
@@ -18,7 +18,7 @@ public class Solution {
   }
 
   private static void simulateRopeWithKnots(int numberOfKnots) throws Exception {
-    List<String> instructions = Utility.readAllLines("twentyTwo/puzzle/_09/input.txt");
+    List<String> instructions = Utility.readAllLines("_2022/puzzle/_09/input.txt");
     Set<Cell> uniquePlaces = new HashSet<>();
 
     RopeEnd tail = new RopeEnd(0, new Cell(0, 0));

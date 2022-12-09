@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle._09;
+package com.dbjgb.advent._2022.puzzle._09;
 
 import java.util.Objects;
 

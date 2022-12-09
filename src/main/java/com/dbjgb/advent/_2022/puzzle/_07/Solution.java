@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle.seven;
+package com.dbjgb.advent._2022.puzzle._07;
 
 import com.dbjgb.advent.Utility;
 
@@ -13,7 +13,7 @@ import java.util.Set;
 public class Solution {
 
   public static void main(String... args) throws Exception {
-    List<String> terminalOutput = Utility.readAllLines("twentyTwo/puzzle/seven/input.txt");
+    List<String> terminalOutput = Utility.readAllLines("_2022/puzzle/_07/input.txt");
     List<Directory> directories = new ArrayList<>();
     Directory rootDirectory = new Directory("/", null);
     directories.add(rootDirectory);

@@ -1,7 +1,6 @@
-package com.dbjgb.advent.twentyTwo.puzzle.three;
+package com.dbjgb.advent._2022.puzzle._03;
 
 import com.dbjgb.advent.Utility;
-import org.checkerframework.checker.units.qual.A;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,7 +14,7 @@ public class Solution {
   private static final int UPPERCASE_DIFFERENCE = 38;
 
   public static void main(String... args) throws IOException, URISyntaxException {
-    List<String> ruckSacks = Utility.readAllLines("twentyTwo/puzzle/three/input.txt");
+    List<String> ruckSacks = Utility.readAllLines("_2022/puzzle/_03/input.txt");
     long totalPriority = 0;
     long elfGroupPriority = 0;
     List<char[]> elfGroup = new ArrayList<>();

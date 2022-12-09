@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle.five;
+package com.dbjgb.advent._2022.puzzle._05;
 
 import com.dbjgb.advent.Utility;
 
@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +13,7 @@ public class Solution {
 
   private static final Pattern INSTRUCTION_PATTERN = Pattern.compile("move (\\d+) from (\\d) to (\\d)");
   public static void main(String... args) throws Exception {
-    List<String> stackConfiguration = Utility.readAllLines("twentyTwo/puzzle/five/stacks.txt");
+    List<String> stackConfiguration = Utility.readAllLines("_2022/puzzle/_05/stacks.txt");
     Collections.reverse(stackConfiguration);
 
     String[] stackIds = stackConfiguration.get(0).trim().split(" +");
@@ -36,7 +35,7 @@ public class Solution {
       }
     }
 
-    List<String> instructions = Utility.readAllLines("twentyTwo/puzzle/five/input.txt");
+    List<String> instructions = Utility.readAllLines("_2022/puzzle/_05/input.txt");
     for (String instruction : instructions) {
       Matcher instructionMatcher = INSTRUCTION_PATTERN.matcher(instruction);
       if (!instructionMatcher.matches()) {

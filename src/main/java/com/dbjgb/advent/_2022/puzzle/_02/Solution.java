@@ -1,11 +1,10 @@
-package com.dbjgb.advent.twentyTwo.puzzle.two;
+package com.dbjgb.advent._2022.puzzle._02;
 
 import com.dbjgb.advent.Utility;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -22,7 +21,7 @@ public class Solution {
 
   private static void predictScore() throws URISyntaxException, IOException {
     int score = 0;
-    for (String round : Utility.readAllLines("twentyTwo/puzzle/two/input.txt")) {
+    for (String round : Utility.readAllLines("_2022/puzzle/_02/input.txt")) {
       Matcher roundMatcher = ROUND_PATTERN.matcher(round);
       roundMatcher.matches();
 
@@ -46,7 +45,7 @@ public class Solution {
 
   private static void determineActualScore() throws IOException, URISyntaxException {
     int score = 0;
-    for (String round : Utility.readAllLines("twentyTwo/puzzle/two/input.txt")) {
+    for (String round : Utility.readAllLines("_2022/puzzle/_02/input.txt")) {
       Matcher roundMatcher = ROUND_PATTERN.matcher(round);
       roundMatcher.matches();
 

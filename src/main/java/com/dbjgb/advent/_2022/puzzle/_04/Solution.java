@@ -1,8 +1,7 @@
-package com.dbjgb.advent.twentyTwo.puzzle.four;
+package com.dbjgb.advent._2022.puzzle._04;
 
 import com.dbjgb.advent.Utility;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +11,7 @@ public class Solution {
   private static final Pattern RANGE_PAIR_PATTERN = Pattern.compile("(\\d+)-(\\d+),(\\d+)-(\\d+)");
 
   public static void main(String... args) throws Exception {
-    List<String> ranges = Utility.readAllLines("twentyTwo/puzzle/four/input.txt");
+    List<String> ranges = Utility.readAllLines("_2022/puzzle/_04/input.txt");
     int totalEnclosed = 0;
     for (String rangePair : ranges) {
       Matcher rangePairMatcher = RANGE_PAIR_PATTERN.matcher(rangePair);

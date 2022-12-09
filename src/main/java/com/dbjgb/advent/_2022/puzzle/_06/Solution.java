@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle.six;
+package com.dbjgb.advent._2022.puzzle._06;
 
 import com.dbjgb.advent.Utility;
 
@@ -8,7 +8,7 @@ import java.util.Set;
 public class Solution {
 
   public static void main(String... args) throws Exception {
-    String signal = Utility.readEntireFile("twentyTwo/puzzle/six/input.txt");
+    String signal = Utility.readEntireFile("_2022/puzzle/_06/input.txt");
     System.out.printf("Signal length %d.\n", signal.length());
     for (int i = 0; i <= signal.length() - 4; i++) {
       if (allCharactersDifferent(signal.substring(i, i+4).toCharArray())) {

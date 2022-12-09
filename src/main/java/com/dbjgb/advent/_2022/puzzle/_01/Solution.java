@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle.one;
+package com.dbjgb.advent._2022.puzzle._01;
 
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -15,7 +15,7 @@ public class Solution {
             Paths.get(
                 Thread.currentThread()
                     .getContextClassLoader()
-                    .getResource("com/dbjgb/advent/twentyTwo/puzzle/one/input.txt")
+                    .getResource("com/dbjgb/advent/_2022/puzzle/_01/input.txt")
                     .toURI()));
     List<BigInteger> calorieTotals = new ArrayList<>();
     BigInteger singleElfTotal = BigInteger.ZERO;
