@@ -1,4 +1,4 @@
-package com.dbjgb.advent.twentyTwo.puzzle.eight;
+package com.dbjgb.advent._2022.puzzle._08;
 
 import com.dbjgb.advent.Utility;
 
@@ -7,7 +7,7 @@ import java.util.List;
 public class Solution {
 
   public static void main(String... args) throws Exception {
-    List<String> gridLines = Utility.readAllLines("twentyTwo/puzzle/eight/input.txt");
+    List<String> gridLines = Utility.readAllLines("_2022/puzzle/_08/input.txt");
     char[][] grid = new char[gridLines.size()][gridLines.get(0).length()];
     for (int i = 0; i < grid.length; i++) {
       String line = gridLines.get(i);
