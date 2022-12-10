@@ -2,7 +2,7 @@ parser grammar NineteenParser;
 
 options {
     language = Java;
-    tokenVocab = 'com/dbjgb/advent/twenty/puzzle/nineteen/NineteenLexer';
+    tokenVocab = 'com/dbjgb/advent/_2020/puzzle/_19/NineteenLexer';
 }
 
 @header {
