@@ -93,7 +93,6 @@ public class Solution {
 
     private Set<Point> visitedPoints = new LinkedHashSet<>();
     private Map<Point, Set<Direction>> visitedObstacles = new HashMap<>();
-    private List<Path> pathsTaken = new ArrayList<>();
     private Set<Point> potentialObstaclePlacements = new HashSet<>();
 
     public Grid() throws Exception {
@@ -144,7 +143,6 @@ public class Solution {
       Set<Point> path = guard.moveToNextObstacle(nextObstacle, !isPointInGrid(nextObstacle));
       potentialObstaclePlacements.addAll(findPotentialCircuits(path, guard.getCurrentDirection()));
       visitedPoints.addAll(path);
-      pathsTaken.add(new Path(guard.getCurrentDirection(), path));
       Set<Direction> visitedFrom = visitedObstacles.getOrDefault(nextObstacle, new HashSet<>());
       visitedFrom.add(guard.getCurrentDirection());
       visitedObstacles.putIfAbsent(nextObstacle, visitedFrom);
@@ -153,36 +151,34 @@ public class Solution {
 
     public Set<Point> findPotentialCircuits(Set<Point> potentialTurningPoints, Direction direction) {
       Set<Point> newObstaclePlacements = new HashSet<>();
-      Map<Point, Set<Direction>> fakeVisitedObstacles = new HashMap<>(visitedObstacles);
+
       for (Point potentialTurningPoint : potentialTurningPoints) {
-        Point potentialObstacle = direction.move(potentialTurningPoint);
-        if (visitedPoints.contains(potentialObstacle) || obstacles.contains(potentialObstacle)) {
+        if (visitedPoints.contains(potentialTurningPoint)) {
           continue;
         }
 
-        obstacles.add(potentialObstacle);
-        verticallyOrderedObstacles.add(potentialObstacle);
-        horizontallyOrderedObstacles.add(potentialObstacle);
-        fakeVisitedObstacles.put(potentialObstacle, new HashSet<>(Set.of(direction)));
+        Map<Point, Set<Direction>> visitedObstacles = new HashMap<>(this.visitedObstacles);
 
-        Direction newDirection = direction.rotate();
-        Point targetObstacle = findNextObstacle(potentialTurningPoint, newDirection);
-        while (isPointInGrid(targetObstacle)) {
-          Set<Direction> visitedFrom = new HashSet<>(fakeVisitedObstacles.getOrDefault(targetObstacle, new HashSet<>()));
-          if (visitedFrom.contains(newDirection)) {
-            newObstaclePlacements.add(potentialObstacle);
+        Direction currentDirection = direction;
+        Point currentObstacle = potentialTurningPoint;
+        verticallyOrderedObstacles.add(potentialTurningPoint);
+        horizontallyOrderedObstacles.add(potentialTurningPoint);
+        while (isPointInGrid(currentObstacle)) {
+          Set<Direction> sourceDirections = new HashSet<>(visitedObstacles.getOrDefault(currentObstacle, new HashSet<>()));
+          if (sourceDirections.contains(currentDirection)) {
+            newObstaclePlacements.add(potentialTurningPoint);
             break;
           }
 
-          visitedFrom.add(direction);
-          fakeVisitedObstacles.put(targetObstacle, visitedFrom);
-          targetObstacle = findNextObstacle(newDirection.reverse(targetObstacle), newDirection.rotate());
-          newDirection = newDirection.rotate();
-        }
+          sourceDirections.add(currentDirection);
+          visitedObstacles.put(currentObstacle, sourceDirections);
 
-        obstacles.remove(potentialObstacle);
-        verticallyOrderedObstacles.remove(potentialObstacle);
-        horizontallyOrderedObstacles.remove(potentialObstacle);
+          Point traversablePoint = currentDirection.reverse(currentObstacle);
+          currentDirection = currentDirection.rotate();
+          currentObstacle = findNextObstacle(traversablePoint, currentDirection);
+        }
+        verticallyOrderedObstacles.remove(potentialTurningPoint);
+        horizontallyOrderedObstacles.remove(potentialTurningPoint);
       }
 
       return newObstaclePlacements;
@@ -220,21 +216,6 @@ public class Solution {
 
   }
 
-  private static class Path {
-
-    private final Direction direction;
-    private final Set<Point> points;
-
-    public Path(Direction direction, Set<Point> points) {
-      this.direction = direction;
-      this.points = points;
-    }
-
-    public boolean intersectsInDirection(Point point, Direction direction) {
-      return this.direction == direction && points.contains(point);
-    }
-  }
-
   private static class Guard {
 
     private Direction currentDirection;
@@ -261,7 +242,7 @@ public class Solution {
     }
 
     public Set<Point> moveToNextObstacle(Point endExclusive, boolean offGrid) {
-      Set<Point> pointsVisited = new HashSet<>();
+      Set<Point> pointsVisited = new LinkedHashSet<>();
       Point current = currentLocation;
       while (!current.equals(endExclusive)) {
         current = currentDirection.move(current);
