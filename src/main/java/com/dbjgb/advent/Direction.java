@@ -11,6 +11,10 @@ public enum Direction {
   private static final Direction[] DIRECTIONS = values();
   private static final Map<String, Direction> DIRECTIONS_BY_NAME = Maps.uniqueIndex(List.of(values()), Direction::toString);
 
+  public static Direction[] allDirections() {
+    return DIRECTIONS;
+  }
+
   public static Direction byName(String name) {
     return DIRECTIONS_BY_NAME.get(name);
   }

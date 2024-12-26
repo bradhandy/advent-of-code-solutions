@@ -24,6 +24,10 @@ public class Point {
     return y;
   }
 
+  public boolean inGrid(int width, int height) {
+    return x >= 0 && x < width && y >= 0 && y < height;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof Point point)) {
