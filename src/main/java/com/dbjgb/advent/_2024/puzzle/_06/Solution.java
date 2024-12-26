@@ -1,16 +1,15 @@
 package com.dbjgb.advent._2024.puzzle._06;
 
+import com.dbjgb.advent.Direction;
+import com.dbjgb.advent.Point;
 import com.dbjgb.advent.Utility;
 import com.google.common.collect.Maps;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -33,37 +32,6 @@ public class Solution {
     }
 
     System.out.printf("Part One: %d\n", grid.getVisitedPoints().size());
-//    Set<Point> obstacles = new LinkedHashSet<>();
-//    Set<Point> visited = new HashSet<>();
-//    Guard guard = new Guard(Direction.UP);
-//    int gridWidth = -1;
-//
-//    int lineNumber = 0;
-//    for (String line : Utility.readAllLines("_2024/puzzle/_06/input.txt")) {
-//      gridWidth = line.length();
-//
-//      int obstacle = 0;
-//      while (obstacle < line.length() && (obstacle = line.indexOf('#', obstacle)) != -1) {
-//        Point point = new Point(obstacle, lineNumber);
-//        obstacles.add(point);
-//        obstacle++;
-//      }
-//
-//      char direction = guard.getCurrentDirection().getMarker();
-//      if (line.indexOf(direction) != -1) {
-//        guard.setCurrentLocation(new Point(line.indexOf(direction), lineNumber));
-//      }
-//      lineNumber++;
-//    }
-//    guard.setSearchGrid(lineNumber, gridWidth);
-//    guard.setObstacles(obstacles);
-//
-//    visited.add(guard.getCurrentLocation());
-//    while (guard.isInTheGrid()) {
-//      visited.addAll(guard.moveToObstacle());
-//    }
-//
-//    System.out.printf("Part One: %d\n", visited.size());
   }
 
   private static void solvePartTwo() throws Exception {
@@ -73,9 +41,6 @@ public class Solution {
       grid.moveGuardToNextObstacle();
     }
 
-    for (Point point : grid.getPotentialObstaclePlacements()) {
-      System.out.printf("x = %d ; y = %d\n", point.getX(), point.getY());
-    }
     System.out.printf("Part Two: %d\n", grid.getPotentialObstaclePlacements().size());
   }
 
@@ -92,7 +57,7 @@ public class Solution {
     private Guard guard;
 
     private Set<Point> visitedPoints = new LinkedHashSet<>();
-    private Map<Point, Set<Direction>> visitedObstacles = new HashMap<>();
+    private Map<Point, Set<GridDirection>> visitedObstacles = new HashMap<>();
     private Set<Point> potentialObstaclePlacements = new HashSet<>();
 
     public Grid() throws Exception {
@@ -111,7 +76,7 @@ public class Solution {
         Matcher guardMatcher = GUARD_LOCATION.matcher(line);
         if (guardMatcher.find()) {
           MatchResult searchResult = guardMatcher.toMatchResult();
-          guard = new Guard(Direction.fromCode(searchResult.group(1).charAt(0)));
+          guard = new Guard(GridDirection.fromCode(searchResult.group(1).charAt(0)));
           guard.setCurrentLocation(new Point(searchResult.start(), lineNumber));
           visitedPoints.add(guard.getCurrentLocation());
         }
@@ -143,13 +108,13 @@ public class Solution {
       Set<Point> path = guard.moveToNextObstacle(nextObstacle, !isPointInGrid(nextObstacle));
       potentialObstaclePlacements.addAll(findPotentialCircuits(path, guard.getCurrentDirection()));
       visitedPoints.addAll(path);
-      Set<Direction> visitedFrom = visitedObstacles.getOrDefault(nextObstacle, new HashSet<>());
+      Set<GridDirection> visitedFrom = visitedObstacles.getOrDefault(nextObstacle, new HashSet<>());
       visitedFrom.add(guard.getCurrentDirection());
       visitedObstacles.putIfAbsent(nextObstacle, visitedFrom);
       guard.rotateToRight();
     }
 
-    public Set<Point> findPotentialCircuits(Set<Point> potentialTurningPoints, Direction direction) {
+    public Set<Point> findPotentialCircuits(Set<Point> potentialTurningPoints, GridDirection gridDirection) {
       Set<Point> newObstaclePlacements = new HashSet<>();
 
       for (Point potentialTurningPoint : potentialTurningPoints) {
@@ -157,25 +122,25 @@ public class Solution {
           continue;
         }
 
-        Map<Point, Set<Direction>> visitedObstacles = new HashMap<>(this.visitedObstacles);
+        Map<Point, Set<GridDirection>> visitedObstacles = new HashMap<>(this.visitedObstacles);
 
-        Direction currentDirection = direction;
+        GridDirection currentGridDirection = gridDirection;
         Point currentObstacle = potentialTurningPoint;
         verticallyOrderedObstacles.add(potentialTurningPoint);
         horizontallyOrderedObstacles.add(potentialTurningPoint);
         while (isPointInGrid(currentObstacle)) {
-          Set<Direction> sourceDirections = new HashSet<>(visitedObstacles.getOrDefault(currentObstacle, new HashSet<>()));
-          if (sourceDirections.contains(currentDirection)) {
+          Set<GridDirection> sourceGridDirections = new HashSet<>(visitedObstacles.getOrDefault(currentObstacle, new HashSet<>()));
+          if (sourceGridDirections.contains(currentGridDirection)) {
             newObstaclePlacements.add(potentialTurningPoint);
             break;
           }
 
-          sourceDirections.add(currentDirection);
-          visitedObstacles.put(currentObstacle, sourceDirections);
+          sourceGridDirections.add(currentGridDirection);
+          visitedObstacles.put(currentObstacle, sourceGridDirections);
 
-          Point traversablePoint = currentDirection.reverse(currentObstacle);
-          currentDirection = currentDirection.rotate();
-          currentObstacle = findNextObstacle(traversablePoint, currentDirection);
+          Point traversablePoint = currentGridDirection.reverse(currentObstacle);
+          currentGridDirection = currentGridDirection.rotate();
+          currentObstacle = findNextObstacle(traversablePoint, currentGridDirection);
         }
         verticallyOrderedObstacles.remove(potentialTurningPoint);
         horizontallyOrderedObstacles.remove(potentialTurningPoint);
@@ -184,49 +149,49 @@ public class Solution {
       return newObstaclePlacements;
     }
 
-    private Point findNextObstacle(Point start, Direction direction) {
-      SortedSet<Point> sortedObstacles = (direction.vertical) ? verticallyOrderedObstacles: horizontallyOrderedObstacles;
+    private Point findNextObstacle(Point start, GridDirection gridDirection) {
+      SortedSet<Point> sortedObstacles = (gridDirection.vertical) ? verticallyOrderedObstacles: horizontallyOrderedObstacles;
       SortedSet<Point> nextObstacles =
-          (direction.forward) ? sortedObstacles.tailSet(start) : sortedObstacles.subSet(sortedObstacles.first(), start);
+          (gridDirection.forward) ? sortedObstacles.tailSet(start) : sortedObstacles.subSet(sortedObstacles.first(), start);
 
       Point nextObstacle = null;
       if (!nextObstacles.isEmpty()) {
-        nextObstacle = (direction.forward) ? nextObstacles.first() : nextObstacles.last();
+        nextObstacle = (gridDirection.forward) ? nextObstacles.first() : nextObstacles.last();
       }
 
-      if (nextObstacle == null || (direction.vertical && nextObstacle.getX() != start.getX()) || (!direction.vertical && nextObstacle.getY() != start.getY())) {
-        nextObstacle = createOffGridPoint(start, direction);
+      if (nextObstacle == null || (gridDirection.vertical && nextObstacle.getX() != start.getX()) || (!gridDirection.vertical && nextObstacle.getY() != start.getY())) {
+        nextObstacle = createOffGridPoint(start, gridDirection);
       }
 
       return nextObstacle;
     }
 
-    private Point createOffGridPoint(Point from, Direction direction) {
-      int newGridPoint = direction.forward ? getForwardOffGridPoint(direction) : -1;
-      if (direction.vertical) {
+    private Point createOffGridPoint(Point from, GridDirection gridDirection) {
+      int newGridPoint = gridDirection.forward ? getForwardOffGridPoint(gridDirection) : -1;
+      if (gridDirection.vertical) {
         return new Point(from.getX(), newGridPoint);
       }
 
       return new Point(newGridPoint, from.getY());
     }
 
-    private int getForwardOffGridPoint(Direction direction) {
-      return direction.vertical ? height : width;
+    private int getForwardOffGridPoint(GridDirection gridDirection) {
+      return gridDirection.vertical ? height : width;
     }
 
   }
 
   private static class Guard {
 
-    private Direction currentDirection;
+    private GridDirection currentGridDirection;
     private Point currentLocation;
 
-    public Guard(Direction currentDirection) {
-      this.currentDirection = currentDirection;
+    public Guard(GridDirection currentGridDirection) {
+      this.currentGridDirection = currentGridDirection;
     }
 
-    public Direction getCurrentDirection() {
-      return currentDirection;
+    public GridDirection getCurrentDirection() {
+      return currentGridDirection;
     }
 
     public Point getCurrentLocation() {
@@ -238,14 +203,14 @@ public class Solution {
     }
 
     public void rotateToRight() {
-      currentDirection = currentDirection.rotate();
+      currentGridDirection = currentGridDirection.rotate();
     }
 
     public Set<Point> moveToNextObstacle(Point endExclusive, boolean offGrid) {
       Set<Point> pointsVisited = new LinkedHashSet<>();
       Point current = currentLocation;
       while (!current.equals(endExclusive)) {
-        current = currentDirection.move(current);
+        current = currentGridDirection.move(current);
         pointsVisited.add(current);
         if (offGrid || !current.equals(endExclusive)) {
           currentLocation = current;
@@ -257,92 +222,43 @@ public class Solution {
     }
   }
 
-  public enum Direction {
-    UP('^', new Point(0, -1)), RIGHT('>', new Point(1, 0)), DOWN('v', new Point(0, 1)), LEFT('<', new Point(-1, 0));
+  public enum GridDirection {
+    UP('^', true, false), RIGHT('>', false, true), DOWN('v', true, true), LEFT('<', false, false);
 
-    private static final Direction[] DIRECTIONS = values();
-    private static final Map<Character, Direction> DIRECTIONS_BY_CODE = Maps.uniqueIndex(List.of(values()), Direction::getMarker);
+    private static final GridDirection[] GRID_DIRECTIONS = values();
+    private static final Map<Character, GridDirection> DIRECTIONS_BY_CODE = Maps.uniqueIndex(List.of(values()), GridDirection::getMarker);
 
-    public static Direction fromCode(char directionCode) {
+    public static GridDirection fromCode(char directionCode) {
       return DIRECTIONS_BY_CODE.get(directionCode);
     }
 
     private final char marker;
-    private final Point deltaPoint;
     private final boolean vertical;
     private final boolean forward;
 
-    Direction(char marker, Point deltaPoint) {
+    GridDirection(char marker, boolean vertical, boolean forward) {
       this.marker = marker;
-      this.deltaPoint = deltaPoint;
-      this.vertical = deltaPoint.getY() != 0;
-      this.forward = (this.vertical) ? deltaPoint.getY() > 0 : deltaPoint.getX() > 0;
+      this.vertical = vertical;
+      this.forward = forward;
     }
 
     public Point move(Point start) {
-      return new Point(start.getX() + deltaPoint.getX(), start.getY() + deltaPoint.getY());
+      Direction direction = Direction.byName(toString());
+      return direction.forward(start);
     }
 
     public Point reverse(Point start) {
-      Point reverseDelta = new Point(deltaPoint.getX() * -1, deltaPoint.getY() * -1);
-      return new Point(start.getX() + reverseDelta.getX(), start.getY() + reverseDelta.getY());
+      Direction direction = Direction.byName(toString());
+      return direction.reverse(start);
     }
 
     public char getMarker() {
       return marker;
     }
 
-    public Direction rotate() {
-      return DIRECTIONS[(ordinal() + 1) % DIRECTIONS.length];
+    public GridDirection rotate() {
+      return GRID_DIRECTIONS[(ordinal() + 1) % GRID_DIRECTIONS.length];
     }
   }
 
-  private static class Point {
-
-    public static final Comparator<Point> ORDER_BY_Y = (o1, o2) -> {
-      int result = Integer.compare(o1.y, o2.y);
-      if (result == 0) {
-        return Integer.compare(o1.x, o2.x);
-      }
-
-      return result;
-    };
-    public static final Comparator<Point> ORDER_BY_X = (o1, o2) -> {
-      int result = Integer.compare(o1.x, o2.x);
-      if (result == 0) {
-        return Integer.compare(o1.y, o2.y);
-      }
-
-      return result;
-    };
-
-    private final int x;
-    private final int y;
-
-    public Point(int x, int y) {
-      this.x = x;
-      this.y = y;
-    }
-
-    public int getX() {
-      return x;
-    }
-
-    public int getY() {
-      return y;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof Point point)) {
-        return false;
-      }
-      return x == point.x && y == point.y;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(x, y);
-    }
-  }
 }
